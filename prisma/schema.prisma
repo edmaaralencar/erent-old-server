@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String
+  isAdmin  Boolean @default(false)
+  avatar   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  rentals Rentals[]
+
+  @@map("users")
+}
+
+model Properties {
+  id            String @id @default(uuid())
+  name          String
+  description   String
+  city          String
+  region        String
+  daily_price   Int
+  rooms         Int
+  bathrooms     Int
+  size          Int
+  capacity      Int
+
+  rentals Rentals[]
+  images  PropertyImages[]
+  options OptionsOnProperties[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("properties")
+}
+
+model PropertyImages {
+  id         String @id @default(uuid())
+  image_name String
+
+  property_id String
+  Properties  Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("properties_images")
+}
+
+model Options {
+  id          String @id @default(uuid())
+  name      String
+
+  properties OptionsOnProperties[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("options")
+}
+
+model OptionsOnProperties {
+  property       Properties   @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  property_id    String // relation scalar field (used in the `@relation` attribute above)
+  option         Options      @relation(fields: [option_id], references: [id], onDelete: Restrict)
+  option_id      String // relation scalar field (used in the `@relation` attribute above)
+
+  @@map("properties_options")
+  @@id([property_id, option_id])
+}
+
+model Rentals {
+  id          String @id @default(uuid())
+  check_in    DateTime
+  checkout    DateTime
+  total       Int
+
+  property    Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  property_id String
+
+  user        Users @relation(fields: [user_id], references: [id])
+  user_id     String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("rentals")
+}
