@@ -21,6 +21,7 @@ model Users {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  comments Comments[]
   rentals Rentals[]
 
   @@map("users")
@@ -41,6 +42,7 @@ model Properties {
   rentals Rentals[]
   images  PropertyImages[]
   options OptionsOnProperties[]
+  comments Comments[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -59,6 +61,21 @@ model PropertyImages {
   updated_at DateTime @updatedAt
 
   @@map("properties_images")
+}
+
+model Comments {
+  id         String @id @default(uuid())
+  message    String
+
+  property_id String
+  Properties  Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  user_id String
+  user  Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("comments")
 }
 
 model Options {
@@ -84,10 +101,11 @@ model OptionsOnProperties {
 }
 
 model Rentals {
-  id          String @id @default(uuid())
+  id          String @id
   check_in    DateTime
   checkout    DateTime
   total       Int
+  status      String
 
   property    Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
   property_id String
