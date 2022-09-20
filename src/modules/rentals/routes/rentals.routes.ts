@@ -1,3 +1,4 @@
+import ensureAdmin from '@shared/http/middlewares/ensureAdmin'
 import ensureAuthenticated from '@shared/http/middlewares/ensureAuthenticated'
 import { celebrate, Joi, Segments } from 'celebrate'
 import { Router } from 'express'
@@ -7,13 +8,18 @@ const rentalsRouter = Router()
 
 const rentalsController = new RentalsController()
 
-rentalsRouter.use(ensureAuthenticated)
-
-rentalsRouter.get('/me', rentalsController.show)
 rentalsRouter.get('/', rentalsController.index)
-
+rentalsRouter.get(
+  '/all',
+  ensureAuthenticated,
+  ensureAdmin,
+  rentalsController.listAll
+)
+rentalsRouter.get('/me', ensureAuthenticated, rentalsController.show)
+rentalsRouter.get('/:id', rentalsController.showSpecific)
 rentalsRouter.post(
   '/',
+  ensureAuthenticated,
   celebrate({
     [Segments.BODY]: {
       property_id: Joi.string().uuid().required(),

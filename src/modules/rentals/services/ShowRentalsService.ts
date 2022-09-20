@@ -16,11 +16,15 @@ class ShowRentalsService {
       skip: pagesToSkip,
       take: Number(per_page),
       include: {
-        property: true
+        property: {
+          include: {
+            images: true
+          }
+        }
       },
       orderBy: [
         {
-          created_at: 'asc'
+          created_at: 'desc'
         }
       ]
     })

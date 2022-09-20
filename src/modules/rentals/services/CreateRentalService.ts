@@ -1,5 +1,6 @@
 import prisma from '@shared/database/prismaClient'
 import AppError from '@shared/errors/AppError'
+import { stripe } from '@shared/lib/stripe'
 import {
   calculateDifferenceBetweenDates,
   getDaysArray
@@ -57,19 +58,47 @@ class CreateRentalService {
       throw new AppError('There is already a rental in this date.')
     }
 
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: property.name
+            },
+            unit_amount:
+              calculateDifferenceBetweenDates(check_in, checkout) *
+              property?.daily_price *
+              100
+          },
+          adjustable_quantity: {
+            enabled: false
+          },
+          quantity: 1
+        }
+      ],
+      mode: 'payment',
+      success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3000/error`
+    })
+
     const rental = await prisma.rentals.create({
       data: {
+        id: session.id,
         total:
           calculateDifferenceBetweenDates(check_in, checkout) *
           property?.daily_price,
         property_id,
         user_id,
         check_in,
-        checkout
+        checkout,
+        status: session.status as string
       }
     })
 
     return {
+      checkoutUrl: session.url,
       rental,
       time_of_stay: calculateDifferenceBetweenDates(check_in, checkout),
       property
