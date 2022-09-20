@@ -23,7 +23,7 @@ class ListPropertiesService {
       },
       orderBy: [
         {
-          created_at: 'asc'
+          created_at: 'desc'
         }
       ]
     })

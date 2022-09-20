@@ -13,10 +13,6 @@ const propertiesController = new PropertiesController()
 const upload = multer(uploadConfig)
 
 propertiesRouter.get('/', propertiesController.index)
-
-propertiesRouter.use(ensureAuthenticated)
-propertiesRouter.use(ensureAdmin)
-
 propertiesRouter.get(
   '/:id',
   celebrate({
@@ -29,6 +25,8 @@ propertiesRouter.get(
 
 propertiesRouter.delete(
   '/:id',
+  ensureAuthenticated,
+  ensureAdmin,
   celebrate({
     [Segments.PARAMS]: {
       id: Joi.string().uuid().required()
@@ -39,6 +37,8 @@ propertiesRouter.delete(
 
 propertiesRouter.post(
   '/',
+  ensureAuthenticated,
+  ensureAdmin,
   upload.array('file'),
   // celebrate({
   //   [Segments.BODY]: {
