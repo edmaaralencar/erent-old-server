@@ -5,14 +5,15 @@ type IRequest = {
   property_id: string
   user_id: string
   message: string
+  value: number
 }
 
-class CreateCommentService {
-  public async execute({ property_id, user_id, message }: IRequest) {
+class CreateRatingService {
+  public async execute({ property_id, user_id, message, value }: IRequest) {
     const property = await prisma.properties.findUnique({
       where: { id: property_id },
       include: {
-        comments: true
+        ratings: true
       }
     })
 
@@ -28,30 +29,31 @@ class CreateCommentService {
       rental => rental.property_id === property?.id
     )
 
-    const userHasAlreadyCommented = property.comments.some(
+    const userHasAlreadyRented = property.ratings.some(
       comment => comment.user_id === user_id
     )
 
     if (!hasPropertyInRentals) {
       throw new AppError(
-        'You cant comment in a property that you have not rented.',
+        'You cant rate a property that you have not rented.',
         405
       )
     }
 
-    if (userHasAlreadyCommented) {
-      throw new AppError(`You've already commented in this property.`, 405)
+    if (userHasAlreadyRented) {
+      throw new AppError(`You've already rated this property.`, 405)
     }
 
-    const comment = await prisma.comments.create({
+    const rating = await prisma.ratings.create({
       data: {
         property_id,
         message,
-        user_id
+        user_id,
+        value
       }
     })
-    return comment
+    return rating
   }
 }
 
-export default CreateCommentService
+export default CreateRatingService

@@ -15,7 +15,8 @@ class ShowUserService {
         avatar: true,
         email: true,
         name: true,
-        isAdmin: true
+        isAdmin: true,
+        id: true
       }
     })
 

@@ -21,8 +21,9 @@ model Users {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  comments Comments[]
+  ratings Ratings[]
   rentals Rentals[]
+  tokens  UserTokens[]
 
   @@map("users")
 }
@@ -42,7 +43,7 @@ model Properties {
   rentals Rentals[]
   images  PropertyImages[]
   options OptionsOnProperties[]
-  comments Comments[]
+  ratings Ratings[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -63,19 +64,20 @@ model PropertyImages {
   @@map("properties_images")
 }
 
-model Comments {
-  id         String @id @default(uuid())
-  message    String
+model Ratings {
+  id            String @id @default(uuid())
+  message       String
+  value         Int
 
-  property_id String
-  Properties  Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
-  user_id String
-  user  Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  property_id   String
+  Properties    Properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  user_id       String
+  user          Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("comments")
+  @@map("ratings")
 }
 
 model Options {
@@ -101,7 +103,7 @@ model OptionsOnProperties {
 }
 
 model Rentals {
-  id          String @id
+  id          String @id @default(uuid())
   check_in    DateTime
   checkout    DateTime
   total       Int
@@ -117,4 +119,18 @@ model Rentals {
   updated_at DateTime @updatedAt
 
   @@map("rentals")
+}
+
+model UserTokens {
+  id          String @id @default(uuid())
+
+  token       String @default(uuid())
+
+  user        Users @relation(fields: [user_id], references: [id])
+  user_id     String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("users_tokens")
 }

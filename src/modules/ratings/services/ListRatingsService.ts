@@ -5,21 +5,21 @@ type IRequest = {
   id: string
 }
 
-class ListCommentsService {
+class ListRatingsService {
   public async execute({ id }: IRequest) {
-    const comments = await prisma.comments.findMany({
+    const ratings = await prisma.ratings.findMany({
       where: { property_id: id },
       include: {
         user: true
       }
     })
 
-    if (!comments) {
-      throw new AppError('No comments found in this property.', 400)
+    if (!ratings) {
+      throw new AppError('No ratings found in this property.', 400)
     }
 
-    return { comments }
+    return { ratings }
   }
 }
 
-export default ListCommentsService
+export default ListRatingsService

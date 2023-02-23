@@ -6,13 +6,22 @@ import ShowPropertyService from '../services/ShowPropertyService'
 
 export default class PropertiesController {
   public async index(request: Request, response: Response) {
-    const { page = 1, per_page = 10 } = request.query
+    const {
+      page = 1,
+      per_page = 10,
+      region = '',
+      rooms = 0,
+      daily_price = 0
+    } = request.query
 
     const listProperties = new ListPropertiesService()
 
     const properties = await listProperties.execute({
       page: Number(page),
-      per_page: Number(per_page)
+      per_page: Number(per_page),
+      region: String(region),
+      rooms: Number(rooms),
+      daily_price: Number(daily_price)
     })
 
     return response.json(properties)
